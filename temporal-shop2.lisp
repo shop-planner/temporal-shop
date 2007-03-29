@@ -21,6 +21,9 @@
      ()
   )
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(!!record-start !!record-end simple-temporal-domain)))
+
 
 ;;;---------------------------------------------------------------------------
 ;;; Experimental code for controlling SHOP2 search in temporal domains
