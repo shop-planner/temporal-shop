@@ -22,7 +22,7 @@
   )
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(!!record-start !!record-end simple-temporal-domain)))
+  (export '(!!record-start !!record-end simple-temporal-domain at-time)))
 
 
 ;;;---------------------------------------------------------------------------
@@ -48,15 +48,16 @@
     ;; I'm not sure this arises, but just to be on the safe side...
     (:immediate (preferred-time (cdr task)))
     (:task (preferred-time (cdr task)))
-    (otherwise (at-time (first task) task))))
+    (otherwise (at-time *domain* (first task) task))))
 
 
 
-(defgeneric at-time (symbol task)
+(defgeneric at-time (domain symbol task)
   (:documentation "Dispatching on SYMBOL, return a time value for when TASK should be scheduled,
-or NIL."))
+or NIL.  Typically this will be a function, defined on the list structure that is TASK, that
+picks some nth element to return."))
 
-(defmethod at-time (symbol task)
+(defmethod at-time ((domain simple-temporal-domain) symbol task)
   "Default method --- no time for TASK."
   (declare (ignore symbol task))
   NIL)
