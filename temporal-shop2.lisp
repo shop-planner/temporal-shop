@@ -33,6 +33,11 @@
 (defun now ()
   (second (first (query-current-state 'time))))
 
+
+#|
+;; this is dead code, because the task-sorter should take care of
+;; failing to select a task in the event that things are unschedulable
+;; [2007/04/06:rpg]
 (defun unschedulable (task-list unifier)
   (let ((now (now)))
     (loop for task in task-list
@@ -41,7 +46,8 @@
 	when (and (numberp preferred-time)
 		  (< preferred-time now))
 	return t
-	finally (return nil))))
+	  finally (return nil))))
+|#
 
 (defun preferred-time (task)
   (case (car task)
@@ -74,6 +80,7 @@ picks some nth element to return."))
 ;;; 
 ;;;---------------------------------------------------------------------------
 (defconstant +untimed-first+ nil)
+(defvar *now* nil)
 
 (defun make-task-iterator-alist (task-list unifier
 					   &optional (untimed-first +untimed-first+)
@@ -98,7 +105,9 @@ task in task list either a time at which is should commence, or NIL."
 			task time)
 	  end
 	  and when (or (null min-time) (< time min-time))
-		do (setf min-time time))
+		do (setf min-time time)
+		and when (< min-time *now*)
+		      do (return-from make-task-iterator-alist nil))
     (setf alist (nreverse alist))	; I'd like this to be stable
     (when (and has-spacers remove-from-spacers)
       ;; we remove all the untimed tasks if there's a spacer, to force
@@ -130,9 +139,13 @@ task in task list either a time at which is should commence, or NIL."
 ;;;	nil)))
 
 (defmethod task-sorter ((domain simple-temporal-domain)
-			  task-list unifier)
-  (let ((alist (make-task-iterator-alist task-list unifier)))
-    (mapcar #'car alist)))
+			task-list unifier)
+  ;; optimize not to sort if you don't have to...
+  (if (= (length task-list) 1)
+      task-list
+    (let ((alist (let ((*now* (now)))
+		   (make-task-iterator-alist task-list unifier))))
+      (mapcar #'car alist))))
 	      
 ;;;(defun user-choose-task (task-list unifier &optional (immediate nil) (leashed *leashed*))
 ;;;  "Function called to allow a user to choose the next task for expansion, instead 
