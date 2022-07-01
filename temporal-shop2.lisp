@@ -3,7 +3,9 @@
 ;;; Copyright (c) 2005 Smart Information Flow Technologies, d/b/a SIFT, LLC
 ;;; All rights reserved.
 ;;;
-;;; SIFT PROPRIETARY
+;;; This code is made available under the terms of the Mozilla Public License,
+;;; distributed with the system as the file LICENSE.html
+;;;
 ;;;---------------------------------------------------------------------------
 ;;; File Description:
 ;;;
